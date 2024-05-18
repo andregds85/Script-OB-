@@ -1,0 +1,82 @@
+instrument {name ="Seta Azul 2.0", short_name ="joe", overlay=true}
+
+
+
+
+exibir_tracamento = input ( 1, "Desea exibir?", input.string_selection, {"SI","No"})
+
+input_group { "SMAA", smaa_color = input{ default = "turquoise", type = input.color }}
+input_group { "SMAB", smab_color = input{ default = "white", type = input.color }}
+
+input_group { "Up", up_color = input{ default = "turquoise", type = input.color }}
+input_group { "Down", Down_color = input{ default = "turquoise", type = input.color }}
+
+
+sec = security(current_ticker_id, "1m")
+
+
+smaa = ema(close, '4')
+smab = ema(close, '10')
+smaao = ema(open, '4')
+smabo = ema(open, '10')
+
+
+plot(smaa, "EMA", smaa_color)
+plot(smab, "EMA", smab_color)
+
+
+emaa = ema(open, '15')
+
+
+period = input (15, "front.period", input.integer, 1)
+
+source = input (1, "front.ind.source", input.string_selection,  inputs.titles)
+fn     = input (1, "front.newind.average", input.string_selection, averages.titles)
+
+input_group {
+    "front.newind.barcolors",
+    up_color   = input { default = "turquoise", type = input.color },
+    down_color = input { default = "turquoise", type = input.color }
+}
+
+local sourceSeries = inputs [source]
+local averageFunction = averages [fn]
+
+mean = averageFunction (sourceSeries, period)
+mad = sourceSeries - mean
+
+rect {
+    first = 0,
+    second = mad,
+    color = mad >= mad [1] and up_color or down_color,
+    width = 0.6
+}
+
+if
+( mad  <= 0 and ( mad[1] > mad) and  (smaa < smab) and (smaao > smabo) and close <= emaa ) then 
+plot_shape (1,
+"Down",
+shape_style.triangledown,
+shape_size.auto,
+down_color,
+shape_location.abovebar, 
+0,
+" Down ",
+1)
+end
+
+if
+( mad  >= 0 and (mad > mad[1]) and  (smaa > smab) and close >= emaa and smaao < smabo)
+ then 
+plot_shape (1 ,
+"Up",
+shape_style.triangleup,
+shape_size.auto,
+up_color,
+shape_location.belowbar, 
+0,
+"Up",
+1)
+
+end
+
