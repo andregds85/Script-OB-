@@ -1,0 +1,180 @@
+﻿instrument { name = "TARGET PRO1 2022", icon="indicators:AO", overlay = true }
+
+input_group {
+	"COMPRAR", 
+	comprar_color = input {default = "green", type = input.color} 
+}
+
+input_group {
+	"VENDER", 
+	vender_color = input {default = "red", type = input.color} 
+}
+
+input_group {
+	"LOSS", 
+	sinal_color = input {default = "yellow", type = input.color} 
+}
+
+input_group {
+	"CHAVE KEY", 
+	key_par = input {default = "S1T2M3", type = input.string} 
+}
+-- SEGURANÇA DAS INFORMAÇÕES
+	key = key_par	
+	K1         = "S1T2M3"
+	K2         = (key == "")
+	K3         = (key == K1)
+sec = security (current_ticker_id, "5m")	
+if sec and sec.open_time == open_time then
+	
+	base 	   = sma(hlc3, '10')
+	high_band  = base + (stdev(hlc3, 10) * 2)
+	low_band   = base - (stdev(hlc3, 10) * 2)
+		
+	base_2 	     = sma(close, '20')
+	high_band_2  = base + (stdev(close, 20) * 2)
+	low_band_2   = base - (stdev(close, 20) * 2)
+		
+	media      = sma(close, '20')
+	up_band    = media + (stdev(close, 20) * 2.5)
+	down_band  = media - (stdev(close, 20) * 2.5)
+	expo       = ema(close,'100')
+		
+	C1         = (close[1] < low_band and (open < low_band) and close >= low_band)
+	V1         = (close[1] > high_band and (open > high_band) and close <= high_band)
+	
+	C2         = (close[1] < down_band and (down_band > open) and down_band <= close)
+	V2         = (close[1] > up_band and (up_band < open) and up_band <=close)
+	
+	C3         = (close[1] < low_band_2 and (low_band_2 > open) and close >= low_band_2)
+	V3         = (close[1] > high_band_2 and (high_band_2 < open) and close < high_band_2)
+	
+	RT1        = (high > up_band and close <= up_band and expo >= up_band)
+	RT2        = (low < down_band and close >= down_band and expo <= down_band)
+	
+	LSSV       = (close[1] > high_band and (open > high_band) and close > open)
+	LSSC       = (close[1] < low_band and (open > low_band) and close < open)
+	LSSV2      = (close[1] > high_band_2 and (open > high_band_2) and close > open)
+	LSSC2      = (close[1] < low_band_2 and (open < low_band_2) and close < open)
+	
+	
+if K3 == true then	
+  
+	plot_shape((V1), 
+		"VENDER", 
+		shape_style.arrowdown, 
+		shape_size.huge,
+		vender_color, 
+		shape_location.abovebar, 
+		0, 
+		"VENDA", 
+		vender_color)
+
+	plot_shape((C1), 
+		"COMPRAR", 
+		shape_style.arrowup, 
+		shape_size.huge,
+		comprar_color, 
+		shape_location.belowbar, 
+		0, 
+		"COMPRA", 
+		comprar_color)
+		
+	plot_shape((V2), 
+		"VENDER2", 
+		shape_style.arrowdown, 
+		shape_size.huge,
+		vender_color, 
+		shape_location.abovebar, 
+		0, 
+		"VENDA", 
+		vender_color)
+
+	plot_shape((C2), 
+		"COMPRAR2", 
+		shape_style.arrowup, 
+		shape_size.huge,
+		comprar_color, 
+		shape_location.belowbar, 
+		0, 
+		"COMPRA", 
+		comprar_color)		
+		
+	plot_shape((V3), 
+		"VENDER2", 
+		shape_style.arrowdown, 
+		shape_size.huge,
+		vender_color, 
+		shape_location.abovebar, 
+		0, 
+		"VENDA", 
+		vender_color)
+
+	plot_shape((C3), 
+		"COMPRAR2", 
+		shape_style.arrowup, 
+		shape_size.huge,
+		comprar_color, 
+		shape_location.belowbar, 
+		0, 
+		"COMPRA", 
+		comprar_color)
+		
+	plot_shape((LSSV), 
+		"LOSS VENDA", 
+		shape_style.circle, 
+		shape_size.huge,
+		sinal_color, 
+		shape_location.abovebar, 
+		0, 
+		"LOSS", 
+		sinal_color)
+
+	plot_shape((LSSC), 
+		"LOSS COMPRA", 
+		shape_style.circle, 
+		shape_size.huge,
+		sinal_color, 
+		shape_location.belowbar, 
+		0, 
+		"LOSS", 
+		sinal_color)
+
+	plot_shape((LSSV2), 
+		"LOSS VENDA2", 
+		shape_style.circle, 
+		shape_size.huge,
+		sinal_color, 
+		shape_location.abovebar, 
+		0, 
+		"LOSS", 
+		sinal_color)
+
+	plot_shape((LSSC2), 
+		"LOSS COMPRA2", 
+		shape_style.circle, 
+		shape_size.huge,
+		sinal_color, 
+		shape_location.belowbar, 
+		0, 
+		"LOSS", 
+		sinal_color)
+	
+	
+end
+
+--INFORMAÇÕES DE SEGURANÇA
+
+elseif K2 == true then
+		
+	plot_shape((K2), 
+		"KEY2", 
+		shape_style.arrowdown, 
+		shape_size.huge,
+		vender_color, 
+		shape_location.abovebar, 
+		0, 
+		"SEM LICENCA", 
+		vender_color)
+
+end
